@@ -6,7 +6,7 @@ from dataclasses import dataclass, field
 from typing import Any, ClassVar, Dict, Mapping, Optional, TypeVar
 import uuid
 
-from spec_python.serialization import DictSerializable
+from .serialization import DictSerializable
 
 R = TypeVar("R", bound="BaseRequest")
 
