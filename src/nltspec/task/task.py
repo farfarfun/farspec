@@ -5,9 +5,9 @@ from __future__ import annotations
 from abc import ABC, abstractmethod
 from typing import Any, Generic, TypeVar
 
-from spec_python.request import BaseRequest
-from spec_python.response import BaseResponse, TaskStatus
-from spec_python.serialization import utcnow
+from .request import BaseRequest
+from .response import BaseResponse, TaskStatus
+from .serialization import utcnow
 
 RQ = TypeVar("RQ", bound=BaseRequest)
 RS = TypeVar("RS", bound=BaseResponse)

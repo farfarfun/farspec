@@ -7,7 +7,7 @@ from datetime import datetime
 from enum import Enum
 from typing import Any, Dict, List, Optional
 
-from spec_python.serialization import DictSerializable, utcnow
+from .serialization import DictSerializable, utcnow
 
 
 class TaskStatus(str, Enum):
