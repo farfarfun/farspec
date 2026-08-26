@@ -5,7 +5,17 @@ from __future__ import annotations
 from dataclasses import MISSING, fields, is_dataclass
 from datetime import datetime, timezone
 from enum import Enum
-from typing import Any, Dict, Mapping, Type, TypeVar, Union, get_args, get_origin, get_type_hints
+from typing import (
+    Any,
+    Dict,
+    Mapping,
+    Type,
+    TypeVar,
+    Union,
+    get_args,
+    get_origin,
+    get_type_hints,
+)
 
 T = TypeVar("T")
 
@@ -65,7 +75,9 @@ def from_jsonable(typ: Any, value: Any) -> Any:
             kt, vt = args[0], args[1]
             if not isinstance(value, Mapping):
                 raise TypeError(f"期望 Mapping，得到 {type(value)!r}")
-            return {from_jsonable(kt, k): from_jsonable(vt, v) for k, v in value.items()}
+            return {
+                from_jsonable(kt, k): from_jsonable(vt, v) for k, v in value.items()
+            }
         return dict(value) if isinstance(value, Mapping) else value
 
     if isinstance(typ, type) and issubclass(typ, Enum):
@@ -105,7 +117,9 @@ def dataclass_to_dict(obj: Any) -> Dict[str, Any]:
     return out
 
 
-def dataclass_from_dict(cls: Type[T], data: Mapping[str, Any], *, strict: bool = False) -> T:
+def dataclass_from_dict(
+    cls: Type[T], data: Mapping[str, Any], *, strict: bool = False
+) -> T:
     if not is_dataclass(cls) or not isinstance(cls, type):
         raise TypeError("dataclass_from_dict 需要 dataclass 类")
     try:

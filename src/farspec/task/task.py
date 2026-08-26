@@ -35,7 +35,9 @@ class BaseTask(ABC, Generic[RQ, RS]):
         if active.request_id is None:
             active.request_id = self.request.request_id
         active.mark_running()
-        active.add_event("task_started", "run() entered", data={"args_count": len(args)})
+        active.add_event(
+            "task_started", "run() entered", data={"args_count": len(args)}
+        )
 
         try:
             result = self.execute(active, *args, **kwargs)

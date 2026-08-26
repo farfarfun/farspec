@@ -23,7 +23,9 @@ class BaseRequest(DictSerializable):
 
     schema_version: ClassVar[str] = "1"
 
-    def merge_meta(self, other: Optional[Mapping[str, Any]] = None, **kwargs: Any) -> None:
+    def merge_meta(
+        self, other: Optional[Mapping[str, Any]] = None, **kwargs: Any
+    ) -> None:
         if other:
             self.meta = {**self.meta, **dict(other)}
         if kwargs:
