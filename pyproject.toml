@@ -1,5 +1,5 @@
 [project]
-name = "nltspec"
+name = "farspec"
 version = "1.0.3"
 description = "Add your description here"
 readme = "README.md"
