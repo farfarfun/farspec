@@ -26,3 +26,8 @@ email = "farfarfun@qq.com"
 Organization = "https://github.com/farfarfun"
 Repository = "https://github.com/farfarfun/farspec"
 Releases = "https://github.com/farfarfun/farspec/releases"
+
+[dependency-groups]
+dev = [
+    "pytest>=7.0",
+]
