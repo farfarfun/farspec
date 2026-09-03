@@ -9,8 +9,26 @@ from __future__ import annotations
 
 from dataclasses import dataclass
 from datetime import datetime
+from enum import Enum
 
 import pytest
+
+
+class _Color(str, Enum):
+    RED = "red"
+    BLUE = "blue"
+
+
+@dataclass
+class _Inner:
+    color: _Color
+    note: str | None = None
+
+
+@dataclass
+class _Outer:
+    inner: _Inner
+    tags: list[str] | None = None
 
 
 def test_import_top_level_package():
@@ -135,6 +153,64 @@ def test_serialization_to_jsonable_and_from_jsonable():
     assert isinstance(iso, str)
     parsed = from_jsonable(datetime, iso)
     assert isinstance(parsed, datetime)
+
+
+def test_to_jsonable_rejects_unsupported_type():
+    from farspec.task.serialization import to_jsonable
+
+    class Unsupported:
+        pass
+
+    with pytest.raises(TypeError):
+        to_jsonable(Unsupported())
+
+
+def test_from_jsonable_type_mismatch_raises():
+    from farspec.task.serialization import from_jsonable
+
+    with pytest.raises(TypeError):
+        from_jsonable(list, "not-a-list")
+
+    with pytest.raises(TypeError):
+        from_jsonable(datetime, 123)
+
+
+def test_dataclass_from_dict_strict_missing_field_raises():
+    from farspec.task.serialization import dataclass_from_dict
+
+    @dataclass
+    class Point:
+        x: int
+        y: int
+
+    with pytest.raises(KeyError):
+        dataclass_from_dict(Point, {"x": 1}, strict=True)
+
+    # 非 strict 模式下缺字段交由构造函数处理，缺少必填参数应抛 TypeError
+    with pytest.raises(TypeError):
+        dataclass_from_dict(Point, {"x": 1}, strict=False)
+
+
+def test_dataclass_roundtrip_nested_enum_and_optional():
+    from farspec.task.serialization import dataclass_from_dict, dataclass_to_dict
+
+    obj = _Outer(inner=_Inner(color=_Color.RED, note=None), tags=["a", "b"])
+    data = dataclass_to_dict(obj)
+    assert data == {
+        "inner": {"color": "red", "note": None},
+        "tags": ["a", "b"],
+    }
+
+    restored = dataclass_from_dict(_Outer, data)
+    assert restored.inner.color == _Color.RED
+    assert restored.inner.note is None
+    assert restored.tags == ["a", "b"]
+
+    # Optional 字段缺省时应保持 None，而不是报错
+    data_no_tags = {"inner": {"color": "blue", "note": "hi"}}
+    restored2 = dataclass_from_dict(_Outer, data_no_tags)
+    assert restored2.tags is None
+    assert restored2.inner.color == _Color.BLUE
 
 
 def test_base_task_run_success():

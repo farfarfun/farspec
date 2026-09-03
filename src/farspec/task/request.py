@@ -2,9 +2,10 @@
 
 from __future__ import annotations
 
-from dataclasses import dataclass, field
-from typing import Any, ClassVar, Dict, Mapping, Optional, TypeVar
 import uuid
+from collections.abc import Mapping
+from dataclasses import dataclass, field
+from typing import Any, ClassVar, TypeVar
 
 from .serialization import DictSerializable
 
@@ -19,13 +20,20 @@ class BaseRequest(DictSerializable):
     """
 
     request_id: str = field(default_factory=lambda: str(uuid.uuid4()))
-    meta: Dict[str, Any] = field(default_factory=dict)
+    meta: dict[str, Any] = field(default_factory=dict)
 
     schema_version: ClassVar[str] = "1"
 
-    def merge_meta(
-        self, other: Optional[Mapping[str, Any]] = None, **kwargs: Any
-    ) -> None:
+    def merge_meta(self, other: Mapping[str, Any] | None = None, **kwargs: Any) -> None:
+        """合并额外的 meta 信息，同名 key 后写入的覆盖先写入的。
+
+        Args:
+            other: 待合并的映射，可选。
+            **kwargs: 额外的键值对，优先级高于 ``other``。
+
+        Returns:
+            None。
+        """
         if other:
             self.meta = {**self.meta, **dict(other)}
         if kwargs:
