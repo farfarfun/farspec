@@ -40,7 +40,13 @@ def test_import_task_submodule_public_surface():
     """farspec.task 子模块及其公开符号应可导入。"""
     from farspec import task
 
-    for name in ("BaseRequest", "BaseResponse", "BaseTask", "RuntimeEvent", "TaskStatus"):
+    for name in (
+        "BaseRequest",
+        "BaseResponse",
+        "BaseTask",
+        "RuntimeEvent",
+        "TaskStatus",
+    ):
         assert hasattr(task, name)
         assert name in task.__all__
 
@@ -138,7 +144,7 @@ def test_dict_serializable_roundtrip():
 
 
 def test_serialization_to_jsonable_and_from_jsonable():
-    from farspec.task.serialization import to_jsonable, from_jsonable, utcnow
+    from farspec.task.serialization import from_jsonable, to_jsonable, utcnow
 
     now = utcnow()
     assert now.tzinfo is not None
@@ -213,6 +219,17 @@ def test_dataclass_roundtrip_nested_enum_and_optional():
     assert restored2.inner.color == _Color.BLUE
 
 
+def test_dataclass_from_dict_reports_unresolvable_type_hints():
+    from farspec.task.serialization import dataclass_from_dict
+
+    @dataclass
+    class Broken:
+        value: MissingType  # noqa: F821
+
+    with pytest.raises(TypeError, match="Broken"):
+        dataclass_from_dict(Broken, {"value": "x"})
+
+
 def test_base_task_run_success():
     """BaseTask 子类走完整的 run() 生命周期，应到达 SUCCEEDED 且记录事件。"""
     from farspec.task import BaseRequest, BaseResponse, BaseTask, TaskStatus
@@ -261,8 +278,9 @@ def test_base_task_run_catches_exception():
 
 def test_no_cli_entry_point_declared():
     """farspec 的 pyproject.toml 未声明 [project.scripts]，因此没有 CLI 需要冒烟测试。"""
-    import tomllib
     from pathlib import Path
+
+    import tomllib
 
     pyproject = Path(__file__).resolve().parent.parent / "pyproject.toml"
     data = tomllib.loads(pyproject.read_text())

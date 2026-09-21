@@ -189,8 +189,8 @@ def dataclass_from_dict(
         raise TypeError("dataclass_from_dict 需要 dataclass 类")
     try:
         hints = get_type_hints(cls)
-    except Exception:
-        hints = {}
+    except (NameError, TypeError) as exc:
+        raise TypeError(f"无法解析 {cls.__name__} 的类型提示") from exc
     kwargs: dict[str, Any] = {}
     for f in fields(cls):
         if f.metadata.get("exclude_from_dict"):
@@ -217,7 +217,9 @@ class DictSerializable:
         return dataclass_to_dict(self)
 
     @classmethod
-    def from_dict(cls: type[T], data: Mapping[str, Any], *, strict: bool = False) -> T:
+    def from_dict(  # noqa: PYI019  # Python 3.10 compatibility
+        cls: type[T], data: Mapping[str, Any], *, strict: bool = False
+    ) -> T:
         """由 dict 构造当前类的实例。
 
         Args:

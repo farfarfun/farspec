@@ -42,7 +42,7 @@ class EchoTask(BaseTask[BaseRequest, BaseResponse]):
 task = EchoTask(BaseRequest(request_id="req-42"))
 result = task.run()
 
-print(result.status)   # TaskStatus.SUCCEEDED
+print(result.status)  # TaskStatus.SUCCEEDED
 print(result.payload)  # {'echoed': True}
 print(result.to_dict())  # JSON 友好 dict，可直接 json.dumps
 ```

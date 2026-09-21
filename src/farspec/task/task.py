@@ -7,7 +7,6 @@ from typing import Any, Generic, TypeVar
 
 from .request import BaseRequest
 from .response import BaseResponse, TaskStatus
-from .serialization import utcnow
 
 RQ = TypeVar("RQ", bound=BaseRequest)
 RS = TypeVar("RS", bound=BaseResponse)
