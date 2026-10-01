@@ -180,6 +180,12 @@ def test_from_jsonable_type_mismatch_raises():
     with pytest.raises(TypeError):
         from_jsonable(datetime, 123)
 
+    with pytest.raises(TypeError, match="非可选类型"):
+        from_jsonable(int, None)
+
+    assert from_jsonable(int | None, None) is None
+    assert from_jsonable(type(None), None) is None
+
 
 def test_dataclass_from_dict_strict_missing_field_raises():
     from farspec.task.serialization import dataclass_from_dict

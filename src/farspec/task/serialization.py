@@ -92,11 +92,11 @@ def from_jsonable(typ: Any, value: Any) -> Any:
     Raises:
         TypeError: 值与目标类型不匹配，或类型不受支持。
     """
-    if value is None:
-        return None
     optional, inner = _is_optional(typ)
-    if optional and value is None:
-        return None
+    if value is None:
+        if optional or typ is Any or typ is type(None):
+            return None
+        raise TypeError(f"无法将 None 反序列化为非可选类型 {typ!r}")
     typ = inner if optional else typ
     origin = get_origin(typ)
 
