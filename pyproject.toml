@@ -1,7 +1,7 @@
 [project]
 name = "farspec"
-version = "1.0.9"
-description = "farspec"
+version = "1.0.10"
+description = "基于 dataclass 的任务契约规范库，提供请求、响应、状态流转与字典序列化模型"
 readme = "README.md"
 requires-python = ">=3.10"
 dependencies = []

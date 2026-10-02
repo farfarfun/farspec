@@ -1,6 +1,28 @@
 # Changelog
 
-## 1.0.9（当前）
+## 1.0.10（当前）
+
+### 新增
+
+- 开发依赖加入 `ruff`，README 开发章节补充 `ruff check` / `ruff format --check` 步骤。
+
+### 修复
+
+- `from_jsonable` 收到 `None` 时不再无条件返回 `None`：仅 `Any`、`NoneType` 与包含
+  `None` 成员的联合类型（含 `int | str | None` 这类多成员联合）接受 `None`，其余非可选
+  目标类型按 docstring 声明抛出 `TypeError`，不再绕过类型边界校验。
+
+### 变更
+
+- `[project].description` 由占位值 `farspec` 改为真实功能描述，与 README、GitHub 仓库
+  描述保持一致（下次发版后在包元数据中生效）。
+- README 安装章节改为从仓库安装 / 可编辑安装，与当前未上线 PyPI 的发布状态一致。
+
+### 废弃
+
+（无）
+
+## 1.0.9
 
 ### 新增
 

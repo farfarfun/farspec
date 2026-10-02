@@ -19,8 +19,18 @@
 
 ## 安装
 
+本包暂未上线 PyPI，从仓库安装：
+
 ```bash
-pip install farspec
+pip install git+https://github.com/farfarfun/farspec.git
+```
+
+本地开发用可编辑安装：
+
+```bash
+git clone https://github.com/farfarfun/farspec.git
+cd farspec
+pip install -e .
 ```
 
 ## 快速开始
@@ -51,7 +61,9 @@ print(result.to_dict())  # JSON 友好 dict，可直接 json.dumps
 
 ```bash
 uv sync
-python -m pytest tests/ -v
+uv run ruff check .
+uv run ruff format --check .
+uv run pytest tests/ -v
 ```
 
 ## 许可证
