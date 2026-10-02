@@ -19,10 +19,8 @@
 
 ## 安装
 
-本包暂未上线 PyPI，从仓库安装：
-
 ```bash
-pip install git+https://github.com/farfarfun/farspec.git
+pip install farspec
 ```
 
 本地开发用可编辑安装：

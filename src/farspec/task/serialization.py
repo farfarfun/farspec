@@ -101,8 +101,9 @@ def from_jsonable(typ: Any, value: Any) -> Any:
     """按照给定类型注解，将 JSON 友好值还原为目标类型的实例。
 
     Args:
-        typ: 目标类型注解，支持 ``X | None``/``Optional[X]``、list、dict、
-            Enum、datetime、dataclass 及基础标量类型。
+        typ: 目标类型注解，支持 ``X | None``/``Optional[X]``、``X | Y``/
+            ``X | Y | None`` 这类多成员联合、list、dict、Enum、datetime、
+            dataclass 及基础标量类型。
         value: 待还原的 JSON 友好值。
 
     Returns:
@@ -118,6 +119,25 @@ def from_jsonable(typ: Any, value: Any) -> Any:
         raise TypeError(f"无法将 None 反序列化为非可选类型 {typ!r}")
     typ = inner if optional else typ
     origin = get_origin(typ)
+
+    # 多成员联合（``int | str``、``int | str | None``）：``_is_optional`` 只在剥掉
+    # None 后剩**一个**成员时才认可，所以这类注解会原样落到这里。以前它一路穿到函数
+    # 末尾的兜底 raise，导致 ``int | str | None`` 只在值为 None 时能还原（_allows_none
+    # 认它），一带上真实值就抛 TypeError —— 同一个注解一半能用一半不能用。
+    if origin in _UNION_ORIGINS:
+        members = [a for a in get_args(typ) if a is not type(None)]
+        # 先找类型精确命中的成员，避免 ``int | str`` 把 5 强转成 "5"（成员顺序
+        # 本不该改变已经合法的值）。
+        for member in members:
+            if isinstance(member, type) and isinstance(value, member):
+                return from_jsonable(member, value)
+        # 没有精确命中再按声明顺序尝试转换，全部失败才算真的不匹配。
+        for member in members:
+            try:
+                return from_jsonable(member, value)
+            except (TypeError, ValueError):
+                continue
+        raise TypeError(f"值 {type(value)!r} 不匹配联合类型 {typ!r} 的任一成员")
 
     if origin is list or typ is list:
         args = get_args(typ)

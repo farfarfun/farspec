@@ -196,6 +196,24 @@ def test_from_jsonable_type_mismatch_raises():
         from_jsonable(int | str, None)
 
 
+def test_from_jsonable_multi_member_union_accepts_real_values():
+    """多成员联合带真实值时也要能还原，不能只有 None 走得通。"""
+    from farspec.task.serialization import from_jsonable
+
+    # 类型精确命中的成员优先，成员顺序不得改变本来就合法的值
+    assert from_jsonable(int | str | None, 5) == 5
+    assert from_jsonable(int | str | None, "x") == "x"
+    assert from_jsonable(str | int, 5) == 5
+    assert from_jsonable(str | int, "x") == "x"
+    # 非可选的多成员联合同样适用
+    assert from_jsonable(int | str, 7) == 7
+    # typing.Union 写法走同一条分支
+    assert from_jsonable(Union[int, str], "y") == "y"  # noqa: UP007
+    # 任一成员都不匹配时报错，且错误信息指明是联合不匹配
+    with pytest.raises(TypeError, match="不匹配联合类型"):
+        from_jsonable(int | datetime, [1, 2])
+
+
 def test_dataclass_from_dict_strict_missing_field_raises():
     from farspec.task.serialization import dataclass_from_dict
 
