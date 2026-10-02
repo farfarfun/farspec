@@ -46,6 +46,25 @@ def _is_optional(annotation: Any) -> tuple[bool, Any]:
     return False, annotation
 
 
+def _allows_none(annotation: Any) -> bool:
+    """判断注解是否接受 ``None``。
+
+    覆盖 ``Any``、``None``/``NoneType``，以及任意包含 ``None`` 成员的联合类型
+    （含 ``int | str | None`` 这类多成员联合，``_is_optional`` 对它返回 False）。
+
+    Args:
+        annotation: 待检查的类型注解。
+
+    Returns:
+        接受 None 时返回 True。
+    """
+    if annotation is Any or annotation is None or annotation is type(None):
+        return True
+    if get_origin(annotation) in _UNION_ORIGINS:
+        return type(None) in get_args(annotation)
+    return False
+
+
 def to_jsonable(value: Any) -> Any:
     """将任意受支持的值转换为 JSON 友好的原生类型。
 
@@ -94,7 +113,7 @@ def from_jsonable(typ: Any, value: Any) -> Any:
     """
     optional, inner = _is_optional(typ)
     if value is None:
-        if optional or typ is Any or typ is type(None):
+        if _allows_none(typ):
             return None
         raise TypeError(f"无法将 None 反序列化为非可选类型 {typ!r}")
     typ = inner if optional else typ
