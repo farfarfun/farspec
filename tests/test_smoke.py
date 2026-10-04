@@ -10,7 +10,7 @@ from __future__ import annotations
 from dataclasses import dataclass
 from datetime import datetime
 from enum import Enum
-from typing import Any, Optional, Union
+from typing import Any, Union
 
 import pytest
 
@@ -189,7 +189,7 @@ def test_from_jsonable_type_mismatch_raises():
     # 多成员联合（_is_optional 只认两成员的 X | None）同样接受 None
     assert from_jsonable(int | str | None, None) is None
     # 这里刻意用 typing.Union 写法，覆盖 typing.Union 与 types.UnionType 两条分支
-    assert from_jsonable(Optional[Union[int, str]], None) is None  # noqa: UP007, UP045
+    assert from_jsonable(Union[int, str, None], None) is None  # noqa: UP007
     assert from_jsonable(Any, None) is None
 
     with pytest.raises(TypeError, match="非可选类型"):

@@ -30,6 +30,15 @@ class BaseTask(ABC, Generic[RQ, RS]):
         """核心逻辑：根据 ``self.request`` 写入 ``response`` 并返回。"""
 
     def run(self, *args: Any, **kwargs: Any) -> RS:
+        """执行任务完整生命周期，并将执行异常封装为失败响应。
+
+        Args:
+            *args: 透传给 :meth:`execute` 的位置参数。
+            **kwargs: 透传给 :meth:`execute` 的关键字参数。
+
+        Returns:
+            已记录开始、结束事件和状态的响应对象；执行异常时返回已标记失败的响应。
+        """
         active: RS = self.build_response()
         if active.request_id is None:
             active.request_id = self.request.request_id
